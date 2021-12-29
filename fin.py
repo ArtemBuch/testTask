@@ -4,24 +4,27 @@ import xml.etree.ElementTree
 import sqlite_req
 
 try:
-    import requests
+	import requests
 except ImportError:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", 'requests'])
+	print("Установка зависимостей")
+	subprocess.check_call([sys.executable, "-m", "pip", "install", 'requests'])
 finally:
-    import requests
+	import requests
 try:
-    from datetime import datetime, timedelta
+	from datetime import datetime, timedelta
 except ImportError:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", 'DateTime'])
+	print("Установка зависимостей\n")
+	subprocess.check_call([sys.executable, "-m", "pip", "install", 'DateTime'])
 finally:
-    from datetime import datetime, timedelta
+	from datetime import datetime, timedelta
 
 number_of_days = 90
 number_of_sql_records_per_day = 34
 number_of_sql_records = 3060
-
+ 
 
 def insert_data_to_sql(number_of_days, number_of_sql_records_per_day, number_of_sql_records):
+	print("Загрузка данных по переводу различных валют в рубли\n")
 	number_of_sql_records_sql = sqlite_req.check_num()
 	if number_of_sql_records_sql[0][0] > number_of_sql_records:
 		sqlite_req.delete_data()
@@ -58,7 +61,7 @@ def max_value():
 	final_dict = {k:v for k, v in values_dict.items() if v == max_val}
 	values = sqlite_req.read_name(list(final_dict)[0])
 	for val in values:
-		values = f"Название валюты: {val[0]}, дата: {val[1].replace('/', '.')}, значение: {val[2]}"
+		values = f"Название валюты: {val[0]}, дата: {val[1].replace('/', '.')}, значение: {round(float(val[2].replace(',', '.')) / int(val[3]), 4)}\n"
 	print(values)
 
 
@@ -69,7 +72,7 @@ def min_value():
 	final_dict = {k:v for k, v in values_dict.items() if v == min_val}
 	values = sqlite_req.read_name(list(final_dict)[0])
 	for val in values:
-		values = f"Название валюты: {val[0]}, дата: {val[1].replace('/', '.')}, значение: {val[2]}"
+		values = f"Название валюты: {val[0]}, дата: {val[1].replace('/', '.')}, значение: {round(float(val[2].replace(',', '.')) / int(val[3]), 4)}\n"
 	print(values)
 
 
@@ -77,7 +80,8 @@ def avg_value():
 	avg = 0
 	values = sqlite_req.read_values()
 	for val in values:
-		avg += float(val[2].replace(',', '.'))
+		tmp = (float(val[2].replace(',', '.')) / int(val[1]))
+		avg += round(tmp, 4)
 	avg = round(avg/len(values), 4)
 	print(f"Cреднее значение курса рубля за весь период по всем валютам: {avg}")
 

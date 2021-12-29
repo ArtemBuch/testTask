@@ -123,7 +123,8 @@ def read_name(val):
     SELECT
       Finance.Name,
       Finance.Date,
-      Finance.Value
+      Finance.Value,
+      Finance.Nominal
     FROM
       Finance
     WHERE
