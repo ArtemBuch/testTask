@@ -6,14 +6,14 @@ import sqlite_req
 try:
 	import requests
 except ImportError:
-	print("Установка зависимостей\n")
+	print("Установка зависимостей...\n")
 	subprocess.check_call([sys.executable, "-m", "pip", "install", 'requests'])
 finally:
 	import requests
 try:
 	from datetime import datetime, timedelta
 except ImportError:
-	print("Установка зависимостей\n")
+	print("Установка зависимостей...\n")
 	subprocess.check_call([sys.executable, "-m", "pip", "install", 'DateTime'])
 finally:
 	from datetime import datetime, timedelta
@@ -24,7 +24,7 @@ number_of_sql_records = 3060
  
 
 def insert_data_to_sql(number_of_days, number_of_sql_records_per_day, number_of_sql_records):
-	print("Загрузка данных по переводу различных валют в рубли\n")
+	print("Загрузка данных по переводу валют в рубли...\n")
 	number_of_sql_records_sql = sqlite_req.check_num()
 	if number_of_sql_records_sql[0][0] > number_of_sql_records:
 		sqlite_req.delete_data()
@@ -33,6 +33,7 @@ def insert_data_to_sql(number_of_days, number_of_sql_records_per_day, number_of_
 		date = date.strftime('%d/%m/%Y')
 		number_of_sql_records_per_day_sql = sqlite_req.check_date(date)
 		if number_of_sql_records_per_day_sql[0][0] != number_of_sql_records_per_day:
+			print(f"Загрузка данных за {date.replace('/', '.')}...")
 			res = requests.get(f'http://www.cbr.ru/scripts/XML_daily_eng.asp?date_req={date}')
 			tree = xml.etree.ElementTree.fromstring(res.content)
 			val = ''
@@ -43,6 +44,7 @@ def insert_data_to_sql(number_of_days, number_of_sql_records_per_day, number_of_
 				tmp.append(date)
 				sqlite_req.insert_data(tuple(tmp))
 		number_of_days -= 1
+	print('\n')
 
 
 def max_min():
