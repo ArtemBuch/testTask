@@ -6,7 +6,7 @@ import sqlite_req
 try:
 	import requests
 except ImportError:
-	print("Установка зависимостей")
+	print("Установка зависимостей\n")
 	subprocess.check_call([sys.executable, "-m", "pip", "install", 'requests'])
 finally:
 	import requests
