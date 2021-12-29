@@ -46,50 +46,50 @@ def execute_query(connection, query):
         print(f"The error '{e}' occurred")
 
 
-def insertData(val):
+def insert_data(val):
     """
     Запись данных в sql
     """
-    insertData_s = f"""
+    sql_query = f"""
     INSERT INTO
       Finance (NumCode, CharCode, Nominal, Name, Value, Date)
     VALUES
       {val};
     """
-    execute_query(connection, insertData_s)
+    execute_query(connection, sql_query)
 
-def checkNum():
+def check_num():
     """
     Проверяем есть ли данные за этот день(Всего 34 записи в день)
     """
-    prov = f"""
+    sql_query = f"""
     SELECT 
     COUNT(*) 
     FROM 
       Finance 
     """
-    check = execute_read_query(connection, prov)
+    check = execute_read_query(connection, sql_query)
     return check
 
-def deleteData():
+def delete_data():
     """
     Запись данных в sql
     """
-    deleteData_s = f"""
+    sql_query = f"""
     Delete 
     from 
       Finance 
     where 
     rowid IN (Select rowid from Finance limit 34)
     """
-    execute_query(connection, deleteData_s)
+    execute_query(connection, sql_query)
 
 
-def checkDate(val):
+def check_date(val):
     """
     Проверяем есть ли данные за этот день(Всего 34 записи в день)
     """
-    prov = f"""
+    sql_query = f"""
     SELECT 
     COUNT(*) 
     FROM 
@@ -97,14 +97,14 @@ def checkDate(val):
     WHERE 
       Date='{val}' 
     """
-    check = execute_read_query(connection, prov)
+    check = execute_read_query(connection, sql_query)
     return check
 
-def readValues():
+def read_values():
     """
     Вывод всех данных(Value) за день
     """
-    readValues = f"""
+    sql_query = f"""
     SELECT
       Finance.id,
       Finance.Nominal,
@@ -112,14 +112,14 @@ def readValues():
     FROM
       Finance
     """
-    values = execute_read_query(connection, readValues)
+    values = execute_read_query(connection, sql_query)
     return values
 
-def readName(val):
+def read_name(val):
     """
     Вывод названия валюты, даты и значения
     """
-    readName = f"""
+    sql_query = f"""
     SELECT
       Finance.Name,
       Finance.Date,
@@ -129,7 +129,7 @@ def readName(val):
     WHERE
       Finance.id = '{val}'
     """
-    read_name = execute_read_query(connection, readName)
+    read_name = execute_read_query(connection, sql_query)
     return read_name
 
 

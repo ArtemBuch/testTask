@@ -16,16 +16,20 @@ except ImportError:
 finally:
     from datetime import datetime, timedelta
 
-def insertDataToSQL():
-	test = sqlite_req.checkNum() #[(3060,)]
-	if test[0][0] > 3060:
-		sqlite_req.deleteData()
-	x = 90
-	while x > 0:
-		date = datetime.now() - timedelta(days=x)
+number_of_days = 90
+number_of_sql_records_per_day = 34
+number_of_sql_records = 3060
+
+
+def insert_data_to_sql(number_of_days, number_of_sql_records_per_day, number_of_sql_records):
+	number_of_sql_records_sql = sqlite_req.check_num()
+	if number_of_sql_records_sql[0][0] > number_of_sql_records:
+		sqlite_req.delete_data()
+	while number_of_days > 0:
+		date = datetime.now() - timedelta(days = number_of_days)
 		date = date.strftime('%d/%m/%Y')
-		check = sqlite_req.checkDate(date)
-		if check != [(34,)]:
+		number_of_sql_records_per_day_sql = sqlite_req.check_date(date)
+		if number_of_sql_records_per_day_sql[0][0] != number_of_sql_records_per_day:
 			res = requests.get(f'http://www.cbr.ru/scripts/XML_daily_eng.asp?date_req={date}')
 			tree = xml.etree.ElementTree.fromstring(res.content)
 			val = ''
@@ -34,55 +38,51 @@ def insertDataToSQL():
 				for el in elem:
 					tmp.append(el.text)
 				tmp.append(date)
-				sqlite_req.insertData(tuple(tmp))
-		x -= 1
+				sqlite_req.insert_data(tuple(tmp))
+		number_of_days -= 1
 
 
-def maxMin(max_min, flag = 0):
-	Values = {}
-	values = sqlite_req.readValues()
-	if flag:
-		for val in values:
-			Values[val[0]] = float(val[2].replace(',', '.'))
-	else:
-		for val in values:
-			tmp = (float(val[2].replace(',', '.')) / int(val[1]))
-			Values[val[0]] = round(tmp, 4)
-	if max_min == 'max':
-		maxMin_val = max(Values.values())
-	else:
-		maxMin_val = min(Values.values())
-	final_dict = {k:v for k, v in Values.items() if v == maxMin_val}
-	return sqlite_req.readName(list(final_dict)[0])
+def max_min():
+	values_dict = {}
+	values = sqlite_req.read_values()
+	for val in values:
+		tmp = (float(val[2].replace(',', '.')) / int(val[1]))
+		values_dict[val[0]] = round(tmp, 4)
+	return values_dict
 
-def maxValue():
+
+def max_value():
 	print('Максимальное значение курса валюты:')
-	Values = maxMin('max')
-	for val in Values:
-		Values = f"Название валюты: {val[0]}, дата: {val[1].replace('/', '.')}, значение: {val[2]}"
-	print(Values)
+	values_dict = max_min()
+	max_val = max(values_dict.values())
+	final_dict = {k:v for k, v in values_dict.items() if v == max_val}
+	values = sqlite_req.read_name(list(final_dict)[0])
+	for val in values:
+		values = f"Название валюты: {val[0]}, дата: {val[1].replace('/', '.')}, значение: {val[2]}"
+	print(values)
 
 
-def minValue(flag):
+def min_value():
 	print('Минимальное значение курса валюты:')
-	Values = maxMin('min', flag)
-	for val in Values:
-		Values = f"Название валюты: {val[0]}, дата: {val[1].replace('/', '.')}, значение: {val[2]}"
-	print(Values)
+	values_dict = max_min()
+	min_val = min(values_dict.values())
+	final_dict = {k:v for k, v in values_dict.items() if v == min_val}
+	values = sqlite_req.read_name(list(final_dict)[0])
+	for val in values:
+		values = f"Название валюты: {val[0]}, дата: {val[1].replace('/', '.')}, значение: {val[2]}"
+	print(values)
 
 
-def avgValue():
+def avg_value():
 	avg = 0
-	values = sqlite_req.readValues()
+	values = sqlite_req.read_values()
 	for val in values:
 		avg += float(val[2].replace(',', '.'))
 	avg = round(avg/len(values), 4)
 	print(f"Cреднее значение курса рубля за весь период по всем валютам: {avg}")
 
-flag = int(input('Для рассчета минимума с учетом наминала введите 1 и нажмите Enter, иначе введите 0: '))
-date = datetime.now() - timedelta(days=90)
-date = date.strftime('%d/%m/%Y')
-insertDataToSQL()
-maxValue()
-minValue(flag)
-avgValue()
+
+insert_data_to_sql(number_of_days, number_of_sql_records_per_day, number_of_sql_records)
+max_value()
+min_value()
+avg_value()
